@@ -41,6 +41,9 @@ namespace posd {
 
     Square square(uint8_t x, uint8_t y);
     Piece piece(PieceType type, bool white);
+
+    bool sq_color(Square square);
+    PieceType sq_type(Piece piece);
 }
 
 #endif //CHESSENGINE_DATA_H

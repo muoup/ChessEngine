@@ -21,6 +21,7 @@ public:
 
     void PlayMove() override;
     void UndoMove() override;
+
 protected:
     posd::Square from;
     posd::Square to;
@@ -34,6 +35,7 @@ public:
 
     void PlayMove() override;
     void UndoMove() override;
+
 protected:
     posd::Piece captured;
 };
@@ -45,16 +47,21 @@ public:
 
     void PlayMove() override;
     void UndoMove() override;
+
 private:
     posd::EnPassantData data;
 };
 
 class CastleMove : BaseMove {
 public:
-    CastleMove(posd::Square kingSquare, posd::Square rookSquare);
+    CastleMove(posd::Square kingSquare, posd::Square rookSquare) : kingSquare(kingSquare), rookSquare(rookSquare) {};
 
     void PlayMove() override;
     void UndoMove() override;
+
+private:
+    posd::Square kingSquare;
+    posd::Square rookSquare;
 };
 
 #endif //CHESSENGINE_MOVE_H
