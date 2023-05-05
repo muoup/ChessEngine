@@ -6,7 +6,9 @@ chess::Piece chess::piece(PieceType type, bool white) {
 }
 
 chess::Piece chess::piece_fen(char c) {
-    return CHAR_TO_TYPE.at(tolower(c)) << 1 | isupper(c);
+    uint8_t a = CHAR_TO_TYPE.at(tolower(c));
+    a <<= 1;
+    return a | (bool) isupper(c);
 }
 
 bool chess::piece_clr(Piece square) {

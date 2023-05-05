@@ -26,19 +26,10 @@ namespace chess {
     void set_castling_rights(PositionData& data, CastlingType type, bool value);
     void bitmask_castling_rights(PositionData& data, uint8_t mask, bool value);
 
-    inline DataBits create_bits(bool turn, const bool castlingRights[4]);
+    DataBits create_bits(bool turn, const bool castlingRights[4]);
 
     bool turn(const PositionData& data);
     void set_turn(PositionData& data, bool value);
-
-    inline chess::PositionData blank_data() {
-        return {
-            nullptr,
-            *(new std::vector<Move>()),
-            0,
-            0
-        };
-    }
 }
 
 #endif
