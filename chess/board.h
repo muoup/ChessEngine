@@ -20,6 +20,10 @@ namespace chess {
 
         void print();
 
+        const Piece *GetSquares() {
+            return squares;
+        }
+
         Piece GetPieceAt(chess::Square square) {
             return squares[square];
         }

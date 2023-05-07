@@ -6,6 +6,10 @@ chess::Square chess::square(uint8_t x, uint8_t y) {
     return (y << 3) | x;
 }
 
+chess::Square chess::square(const std::string &str) {
+    return square(str[0] - 'a', str[1] - '1');
+}
+
 chess::Square chess::shift(Square origin, uint8_t dx, uint8_t dy) {
     return origin + square(dx, dy);
 }
@@ -16,4 +20,8 @@ uint8_t chess::rank(Square square) {
 
 uint8_t chess::file(Square square) {
     return square & 0b111;
+}
+
+std::string chess::to_string(Square square) {
+    return std::string(1, 'a' + file(square)).append(1, '1' + rank(square));
 }

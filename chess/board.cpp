@@ -43,3 +43,14 @@ void Board::print() {
         std::cout << std::endl;
     }
 }
+
+void Board::PlayMove(Move move) {
+    move.play(move, squares, data.top());
+    data.push(data.top());
+}
+
+Move Board::UndoMove() {
+    auto move = data.top().move;
+    move->undo(*move, squares, data.top());
+    return *move;
+}

@@ -20,6 +20,10 @@ namespace chess {
 
         DataBits dataBits;
         Square enPassant;
+
+        ~PositionData() {
+            delete move;
+        }
     };
 
     bool has_castling_rights(const PositionData& data, CastlingType type);

@@ -1,113 +1,45 @@
 #ifndef CHESSENGINE_MOVE_H
 #define CHESSENGINE_MOVE_H
 
+#include <string>
+#include <iostream>
+#include <memory>
 #include "square.h"
 #include "piece.h"
 
-#define NO_ARG
-#define MOVE_PTR
-
-#define dyn_ptr_cmd(before, after) { \
-    switch (type) { \
-        case NORMAL: \
-            before ((StdMove*) move) after; \
-            break; \
-        case CAPTURE: \
-            before ((CaptureMove*) move) after; \
-            break; \
-        case ENPASSANT: \
-            before ((EnPassantMove*) move) after; \
-            break; \
-        case CASTLE: \
-            before ((CastleMove*) move) after; \
-            break; \
-    } \
-}
-
-// TODO: This whole section should really be done procedurally, it works though so I'll leave it for now.
+// TODO: It's hard to say if this will actual occur in practice, but because of the BOARD_INIT state, undoing the initial setup 'move' will cause a segfault.
 namespace chess {
     struct PositionData;
 
-    enum MoveType {
-        NORMAL,
-        CAPTURE,
-        CASTLE,
-        ENPASSANT
+    struct Move {
+        void (*play)(Move move, Piece squares[], PositionData& data);
+        void (*undo)(Move move, Piece squares[], PositionData& data);
+        std::string (*to_string)(Move move);
+
+        // From and to also act as the king and rook squares for castling moves.
+        Square from, to, enpassantSquare;
+        Piece piece, promotion;
     };
 
-    class BaseMove {
-    public:
-        virtual void PlayMove(Piece squares[], PositionData& data) {};
-        virtual void UndoMove(Piece squares[], PositionData& data) {};
-    };
+    void std_play(Move move, Piece squares[], PositionData& data);
+    void std_undo(Move move, Piece squares[], PositionData& data);
+    std::string std_to_string(Move move);
 
-    class StdMove : BaseMove {
-    public:
-        StdMove(Square from, Square to,
-                Piece promotion = EMPTY) : from(from), to(to), promotion(promotion) {};
+    void capture_play(Move move, Piece squares[], PositionData& data);
+    void capture_undo(Move move, Piece squares[], PositionData& data);
+    std::string capture_to_string(Move move);
 
-        void PlayMove(Piece squares[], PositionData& data) override;
-        void UndoMove(Piece squares[], PositionData& data) override;
+    void castle_play(Move move, Piece squares[], PositionData& data);
+    std::string castle_to_string(Move move);
 
-    protected:
-        Square from;
-        Square to;
-        Piece promotion;
-    };
+    void enpassant_play(Move move, Piece squares[], PositionData& data);
+    void enpassant_undo(Move move, Piece squares[], PositionData& data);
+    std::string enpassant_to_string(Move move);
 
-    class CaptureMove : StdMove {
-    public:
-        CaptureMove(Square from, Square to, Piece capture,
-                    Piece promotion = EMPTY) : StdMove(from, to, promotion), captured(capture) {};
-
-        void PlayMove(Piece squares[], PositionData& data) override;
-        void UndoMove(Piece squares[], PositionData& data) override;
-
-    protected:
-        Piece captured;
-    };
-
-    class EnPassantMove : StdMove {
-    public:
-        EnPassantMove(Square from, Square to,
-                      Square enpassantSquare) : StdMove(from, to, EMPTY), enpassantSquare(enpassantSquare) {};
-
-        void PlayMove(Piece squares[], PositionData& data) override;
-        void UndoMove(Piece squares[], PositionData& data) override;
-
-    private:
-        Square enpassantSquare;
-    };
-
-    class CastleMove : BaseMove {
-    public:
-        CastleMove(Square kingSquare, Square rookSquare) : kingSquare(kingSquare), rookSquare(rookSquare) {};
-
-        void PlayMove(Piece squares[], PositionData& data) override;
-        void UndoMove(Piece squares[], PositionData& data) override;
-
-    private:
-        Square kingSquare;
-        Square rookSquare;
-    };
-
-    class Move {
-    public:
-        Move(void* move, MoveType type) : type(type), move(move) {}
-        ~Move();
-
-        void PlayMove(Piece squares[], PositionData& data);
-        void UndoMove(Piece squares[], PositionData& data);
-
-    private:
-        void* move;
-        MoveType type;
-    };
-
-    Move&& std_move(const Piece squares[], Square from, Square to, Piece promotion = EMPTY);
-    Move&& capture_move(Square from, Square to, Piece captured, Piece promotion = EMPTY);
-    Move&& castle_move(Square kingSquare, Square rookSquare);
-    Move&& enpassant_move(Square from, Square to, Square enpassantSquare);
+    Move std_move(const Piece squares[], Square from, Square to, Piece promotion = EMPTY);
+    Move capture_move(Square from, Square to, Piece captured, Piece promotion = EMPTY);
+    Move castle_move(Square kingSquare, Square rookSquare);
+    Move enpassant_move(Square from, Square to, Square enpassantSquare);
 }
 
 #endif
