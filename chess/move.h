@@ -7,7 +7,6 @@
 #include "square.h"
 #include "piece.h"
 
-// TODO: It's hard to say if this will actual occur in practice, but because of the BOARD_INIT state, undoing the initial setup 'move' will cause a segfault.
 namespace chess {
     struct PositionData;
 
