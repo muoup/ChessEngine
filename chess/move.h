@@ -39,6 +39,8 @@ namespace chess {
     Move capture_move(Square from, Square to, Piece captured, Piece promotion = EMPTY);
     Move castle_move(Square kingSquare, Square rookSquare);
     Move enpassant_move(Square from, Square to, Square enpassantSquare);
+
+    Move empty_move();
 }
 
 #endif

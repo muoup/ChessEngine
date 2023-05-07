@@ -117,3 +117,12 @@ Move chess::castle_move(Square kingSquare, Square rookSquare) {
         .to =  rookSquare
     };
 }
+
+Move chess::empty_move() {
+    return {
+            nullptr,
+            nullptr,
+            nullptr,
+            0, 0, 0, EMPTY, EMPTY
+    };
+}

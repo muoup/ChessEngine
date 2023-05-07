@@ -7,6 +7,8 @@ int main() {
 
     board.PlayMove(testMove);
     board.print();
+    board.UndoMove();
+    board.print();
 
     return 0;
 }

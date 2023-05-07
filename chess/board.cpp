@@ -32,7 +32,7 @@ Board::Board(std::string fen) : data(), squares() {
     // TODO: Castling Rights
     bool castlingRights[4] = { true, true, true, true };
 
-    data.emplace(nullptr, *(new std::vector<Move>()), create_bits(turn, castlingRights), 0);
+    data.emplace(chess::empty_move(), *(new std::vector<Move>()), create_bits(turn, castlingRights), 0);
 }
 
 void Board::print() {
@@ -45,12 +45,14 @@ void Board::print() {
 }
 
 void Board::PlayMove(Move move) {
-    move.play(move, squares, data.top());
-    data.push(data.top());
+    PositionData positionData = data.top();
+    move.play(move, squares, positionData);
+    positionData.move = move;
+    data.push(positionData);
 }
 
 Move Board::UndoMove() {
     auto move = data.top().move;
-    move->undo(*move, squares, data.top());
-    return *move;
+    move.undo(move, squares, data.top());
+    return move;
 }
