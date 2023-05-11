@@ -12,24 +12,24 @@ namespace chess {
         explicit Board(std::string fen);
         Board() : Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {}
 
-        void PushMove(Move move);
-        Move PopMove();
-
         void PlayMove(Move move);
         Move UndoMove();
 
-        void print();
+        void Print();
 
         const Piece *GetSquares() {
             return squares;
         }
 
-        Piece GetPieceAt(chess::Square square) {
+        Piece PieceAt(chess::Square square) {
             return squares[square];
         }
     private:
         std::stack<PositionData> data;
         Piece squares[64];
+
+        void PosEval();
+        void PMPrint();
     };
 }
 

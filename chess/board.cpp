@@ -1,9 +1,6 @@
-//
-// Created by zbv11 on 26-Apr-23.
-//
-
 #include <iostream>
 #include "board.h"
+#include "moveengine.h"
 
 using namespace chess;
 
@@ -33,9 +30,11 @@ Board::Board(std::string fen) : data(), squares() {
     bool castlingRights[4] = { true, true, true, true };
 
     data.emplace(chess::empty_move(), *(new std::vector<Move>()), create_bits(turn, castlingRights), 0);
+
+    PosEval();
 }
 
-void Board::print() {
+void Board::Print() {
     for (int y = 7; y >= 0; y--) {
         for (int x = 0; x < 8; x++) {
             std::cout << to_char(squares[square(x, y)]);
@@ -45,14 +44,39 @@ void Board::print() {
 }
 
 void Board::PlayMove(Move move) {
-    PositionData positionData = data.top();
-    move.play(move, squares, positionData);
-    positionData.move = move;
-    data.push(positionData);
+    PositionData pos = data.top();
+
+    move.play(move, squares, pos);
+    pos.pseudoLegalMoves = *(new std::vector<Move>());
+    pos.prevMove = move;
+
+    data.push(pos);
 }
 
+// Q: If you std::move a class, will its destructor be called?
+// A: Yes, it will be called.
+// https://stackoverflow.com/questions/3106110/does-stdmove-call-the-move-constructor
+
 Move Board::UndoMove() {
-    auto move = data.top().move;
-    move.undo(move, squares, data.top());
+    PositionData pos = data.top();
+    Move move = pos.prevMove;
+    move.undo(squares, pos);
+
+    pos.handle_deconstruct();
+    data.pop();
+
     return move;
+}
+
+void Board::PosEval() {
+    pseudo_movegen(squares, data.top());
+
+    PMPrint();
+}
+
+void Board::PMPrint() {
+    std::cout << "Pseudo Legal Moves:" << std::endl;
+    for (Move move : data.top().pseudoLegalMoves) {
+        std::cout << to_string(move) << std::endl;
+    }
 }

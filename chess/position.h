@@ -15,13 +15,13 @@ namespace chess {
     };
 
     struct PositionData {
-        Move move;
+        Move prevMove;
         std::vector<Move>& pseudoLegalMoves;
 
         DataBits dataBits;
         Square enPassant;
 
-        ~PositionData() {
+        void handle_deconstruct() {
             delete &pseudoLegalMoves;
         }
     };

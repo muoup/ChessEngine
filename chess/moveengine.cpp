@@ -3,7 +3,7 @@
 
 using namespace chess;
 
-void pawn_gen(const Piece squares[], const chess::PositionData& position, Square square) {
+void pawn_gen(const Piece squares[], const PositionData& position, Square square) {
     bool wturn = turn(position);
     int8_t dir = wturn ? 1 : -1;
     Square to;
@@ -11,7 +11,7 @@ void pawn_gen(const Piece squares[], const chess::PositionData& position, Square
     std::vector<Move>& moves = position.pseudoLegalMoves;
 
     if (is_empty(squares[to = shift(square, 0, dir)])) {
-        if (rank(square) == (wturn ? 1 : 6)) {
+        if (rank(square) == (!wturn ? 6 : 1)) {
             moves.push_back(std_move(squares, square, to, QUEEN));
             moves.push_back(std_move(squares, square, to, ROOK));
             moves.push_back(std_move(squares, square, to, BISHOP));
@@ -31,11 +31,11 @@ void pawn_gen(const Piece squares[], const chess::PositionData& position, Square
     // TODO: En passant
 }
 
-void knight_gen(const Piece squares[], const chess::PositionData& data, Square square) {
+void knight_gen(const Piece squares[], const PositionData& data, Square square) {
 
 }
 
-void pseudo_movegen(const Piece squares[], const chess::PositionData& data) {
+void chess::pseudo_movegen(const Piece squares[], const PositionData& data) {
     for (uint8_t i = 0; i < 64; i++) {
         if (piece_type(squares[i]) == EMPTY
          || piece_clr(squares[i]) != turn(data)) continue;
