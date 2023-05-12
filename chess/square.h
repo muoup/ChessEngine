@@ -1,6 +1,8 @@
 #ifndef CHESSENGINE_SQUARE_H
 #define CHESSENGINE_SQUARE_H
 
+#define NULL_MOVE 0
+
 #include <cstdint>
 #include <string>
 
@@ -21,6 +23,9 @@ namespace chess {
 
         Square& operator =(const Square& square) = default;
         Square operator +(const Square& other) const;
+
+        bool valid() const;
+        bool invalid() const;
 
         uint8_t rank() const;
         uint8_t file() const;

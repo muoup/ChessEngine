@@ -5,7 +5,7 @@ using namespace chess;
 chess::Square chess::shift(const Square& origin, int8_t dx, int8_t dy) {
     if (origin.rank() + dy > 7 || origin.rank() + dy < 0 ||
         origin.file() + dx > 7 || origin.file() + dx < 0)
-        return 0;
+        return NULL_MOVE;
 
     return { static_cast<uint8_t>(origin.file() + dx), static_cast<uint8_t>(origin.rank() + dy) };
 }
@@ -28,4 +28,12 @@ Square::operator std::string() const {
 
 Square Square::operator+(const Square& other) const {
     return {(square + other.square) ^ 0x80 };
+}
+
+bool Square::valid() const {
+    return square != NULL_MOVE;
+}
+
+bool Square::invalid() const {
+    return square == NULL_MOVE;
 }

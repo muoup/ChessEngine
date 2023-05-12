@@ -4,7 +4,14 @@
 #define moveadd() position.AddMove(std_move(squares, square, to))
 #define moveaddp(promotion) position.AddMove(std_move(squares, square, to, promotion))
 
-#define knight_move(dx, dy) if ((to = shift(square, dx, dy)) && !is_ally(squares[to], wturn)) moveadd()
+#define offset_move(dx, dy) \
+    if ((to = shift(square, dx, dy)).valid() && !is_ally(squares[to], wturn)) \
+        moveadd()
+#define dir_move(dx, dy) \
+    for (int8_t xx = dx, yy = dy; (to = shift(square, xx, yy)).valid() && !is_ally(squares[to], wturn); xx += dx, yy += dy) { \
+        moveadd(); \
+        if (squares[to]) break; \
+    }
 
 using namespace chess;
 
@@ -38,14 +45,43 @@ void knight_gen(const Piece squares[], PositionData& position, Square square) {
     bool wturn = turn(position);
     Square to;
 
-    knight_move(1, 2);
-    knight_move(2, 1);
-    knight_move(2, -1);
-    knight_move(1, -2);
-    knight_move(-1, -2);
-    knight_move(-2, -1);
-    knight_move(-2, 1);
-    knight_move(-1, 2);
+    offset_move(1, 2);
+    offset_move(2, 1);
+    offset_move(2, -1);
+    offset_move(1, -2);
+    offset_move(-1, -2);
+    offset_move(-2, -1);
+    offset_move(-2, 1);
+    offset_move(-1, 2);
+}
+
+void bishop_gen(const Piece squares[], PositionData& position, Square square) {
+    bool wturn = turn(position);
+    Square to;
+
+    dir_move(1, 1);
+    dir_move(1, -1);
+    dir_move(-1, -1);
+    dir_move(-1, 1);
+}
+
+void rook_gen(const Piece squares[], PositionData& position, Square square) {
+    bool wturn = turn(position);
+    Square to;
+
+    dir_move(1, 0);
+    dir_move(0, 1);
+    dir_move(-1, 0);
+    dir_move(0, -1);
+}
+
+void king_gen(const Piece squares[], PositionData& position, Square square) {
+    bool wturn = turn(position);
+    Square to;
+
+    for (int8_t dx = -1; dx <= 1; dx++)
+        for (int8_t dy = -1; dy <= 1; dy++)
+            offset_move(dx, dy);
 }
 
 void chess::pseudo_movegen(const Piece squares[], PositionData& position) {
@@ -61,12 +97,17 @@ void chess::pseudo_movegen(const Piece squares[], PositionData& position) {
                 knight_gen(squares, position, i);
                 break;
             case BISHOP:
+                bishop_gen(squares, position, i);
                 break;
             case ROOK:
+                rook_gen(squares, position, i);
                 break;
             case QUEEN:
+                bishop_gen(squares, position, i);
+                rook_gen(squares, position, i);
                 break;
             case KING:
+                king_gen(squares, position, i);
                 break;
             default:
                 break;

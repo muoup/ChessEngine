@@ -33,6 +33,7 @@ Board::Board(std::string fen) : data(), squares() {
         .dataBits = create_bits(turn, castlingRights)
     });
 
+    Print();
     PosEval();
 }
 
