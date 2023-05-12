@@ -3,7 +3,7 @@
 int main() {
     chess::Board board;
 
-    chess::Move testMove = chess::std_move(board.GetSquares(), chess::square("e2"), chess::square("e4"));
+    chess::Move testMove = chess::std_move(board.GetSquares(), "e2", "e4");
 
 //    board.PlayMove(testMove);
 //    board.Print();

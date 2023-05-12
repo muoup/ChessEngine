@@ -16,14 +16,12 @@ namespace chess {
 
     struct PositionData {
         Move prevMove;
-        std::vector<Move>& pseudoLegalMoves;
+        std::vector<Move> pseudoLegalMoves;
 
         DataBits dataBits;
         Square enPassant;
 
-        void handle_deconstruct() {
-            delete &pseudoLegalMoves;
-        }
+        void AddMove(Move move);
     };
 
     bool has_castling_rights(const PositionData& data, CastlingType type);

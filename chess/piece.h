@@ -2,8 +2,6 @@
 #include <map>
 
 namespace chess {
-    typedef uint8_t Piece;
-
     enum PieceType {
         NONE,
         PAWN,
@@ -12,7 +10,26 @@ namespace chess {
         QUEEN, KING
     };
 
-    const Piece EMPTY = 0;
+    struct Piece {
+        uint8_t piece;
+
+        Piece() = default;
+        Piece(const Piece& piece) : piece(piece.piece) {}
+        Piece(uint8_t piece) : piece(piece) {}
+        Piece(char c);
+        Piece(PieceType type, bool white) {
+            if (type != NONE)
+                piece = (type << 1) | white;
+        }
+
+        operator uint8_t() const { return piece; }
+        operator int() const { return piece; }
+        operator char() const;
+        operator bool() const { return piece != 0; }
+    };
+
+    const Piece EMPTY = Piece();
+
     const std::map<int, PieceType> CHAR_TO_TYPE = {
             {'p', PAWN},
             {'n', KNIGHT},
@@ -32,15 +49,10 @@ namespace chess {
 
     PieceType char_type(char c);
 
-    Piece piece(PieceType type, bool white);
-    Piece piece_fen(char c);
-
-    bool piece_clr(Piece square);
-    PieceType piece_type(Piece piece);
+    bool piece_clr(const Piece& piece);
+    PieceType piece_type(const Piece& piece);
 
     bool is_empty(Piece piece);
-    bool is_enemy(Piece piece, bool white);
-    bool is_ally(Piece piece, bool white);
-
-    char to_char(Piece piece);
+    bool is_enemy(const Piece& piece, bool white);
+    bool is_ally(const Piece& piece, bool white);
 }

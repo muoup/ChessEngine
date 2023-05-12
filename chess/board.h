@@ -15,15 +15,14 @@ namespace chess {
         void PlayMove(Move move);
         Move UndoMove();
 
+        void SetSquare(Square square, Piece piece);
+        void SetSquare(uint8_t x, uint8_t y, Piece piece);
+        Piece GetSquare(Square square);
+
         void Print();
 
-        const Piece *GetSquares() {
-            return squares;
-        }
-
-        Piece PieceAt(chess::Square square) {
-            return squares[square];
-        }
+        const Piece *GetSquares();
+        Piece PieceAt(chess::Square square);
     private:
         std::stack<PositionData> data;
         Piece squares[64];

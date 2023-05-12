@@ -1,27 +1,31 @@
 #include "square.h"
 
-// TODO: Maybe error-handle these functions, but I don't think it's necessary, as that should be implementation's job.
+using namespace chess;
 
-chess::Square chess::square(uint8_t x, uint8_t y) {
-    return (y << 3) | x;
+chess::Square chess::shift(const Square& origin, int8_t dx, int8_t dy) {
+    if (origin.rank() + dy > 7 || origin.rank() + dy < 0 ||
+        origin.file() + dx > 7 || origin.file() + dx < 0)
+        return 0;
+
+    return { static_cast<uint8_t>(origin.file() + dx), static_cast<uint8_t>(origin.rank() + dy) };
 }
 
-chess::Square chess::square(const std::string &str) {
-    return square(str[0] - 'a', str[1] - '1');
+uint8_t Square::rank() const {
+    return (square >> 3) & 0b111;
 }
 
-chess::Square chess::shift(Square origin, uint8_t dx, uint8_t dy) {
-    return origin + square(dx, dy);
-}
-
-uint8_t chess::rank(Square square) {
-    return square >> 3;
-}
-
-uint8_t chess::file(Square square) {
+uint8_t Square::file() const {
     return square & 0b111;
 }
 
-std::string chess::to_string(Square square) {
-    return std::string(1, 'a' + file(square)).append(1, '1' + rank(square));
+Square::operator uint8_t() const {
+    return square ^ 0x80;
+}
+
+Square::operator std::string() const {
+    return std::string(1, 'a' + file()).append(1, '1' + rank());
+}
+
+Square Square::operator+(const Square& other) const {
+    return {(square + other.square) ^ 0x80 };
 }

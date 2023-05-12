@@ -19,7 +19,7 @@ Board::Board(std::string fen) : data(), squares() {
         } else if (isdigit(c)) {
             x += c - '0';
         } else {
-            squares[square(x, y)] = piece_fen(c);
+            SetSquare(x, y,c);
             x++;
         }
     }
@@ -29,7 +29,9 @@ Board::Board(std::string fen) : data(), squares() {
     // TODO: Castling Rights
     bool castlingRights[4] = { true, true, true, true };
 
-    data.emplace(chess::empty_move(), *(new std::vector<Move>()), create_bits(turn, castlingRights), 0);
+    data.push({
+        .dataBits = create_bits(turn, castlingRights)
+    });
 
     PosEval();
 }
@@ -37,7 +39,7 @@ Board::Board(std::string fen) : data(), squares() {
 void Board::Print() {
     for (int y = 7; y >= 0; y--) {
         for (int x = 0; x < 8; x++) {
-            std::cout << to_char(squares[square(x, y)]);
+            std::cout << (char) squares[Square(x, y)];
         }
         std::cout << std::endl;
     }
@@ -47,25 +49,32 @@ void Board::PlayMove(Move move) {
     PositionData pos = data.top();
 
     move.play(move, squares, pos);
-    pos.pseudoLegalMoves = *(new std::vector<Move>());
     pos.prevMove = move;
 
     data.push(pos);
 }
 
-// Q: If you std::move a class, will its destructor be called?
-// A: Yes, it will be called.
-// https://stackoverflow.com/questions/3106110/does-stdmove-call-the-move-constructor
-
 Move Board::UndoMove() {
     PositionData pos = data.top();
+
     Move move = pos.prevMove;
     move.undo(squares, pos);
 
-    pos.handle_deconstruct();
     data.pop();
 
     return move;
+}
+
+void Board::SetSquare(Square square, Piece piece) {
+    squares[square] = piece;
+}
+
+void Board::SetSquare(uint8_t x, uint8_t y, Piece piece) {
+    squares[Square(x, y)] = piece;
+}
+
+Piece Board::GetSquare(Square square) {
+    return squares[square];
 }
 
 void Board::PosEval() {
@@ -76,7 +85,16 @@ void Board::PosEval() {
 
 void Board::PMPrint() {
     std::cout << "Pseudo Legal Moves:" << std::endl;
-    for (Move move : data.top().pseudoLegalMoves) {
+
+    for (const Move& move : data.top().pseudoLegalMoves) {
         std::cout << to_string(move) << std::endl;
     }
+}
+
+const Piece *Board::GetSquares() {
+    return squares;
+}
+
+Piece Board::PieceAt(chess::Square square) {
+    return squares[square];
 }
