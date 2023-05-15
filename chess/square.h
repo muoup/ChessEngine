@@ -1,8 +1,6 @@
 #ifndef CHESSENGINE_SQUARE_H
 #define CHESSENGINE_SQUARE_H
 
-#define NULL_MOVE 0
-
 #include <cstdint>
 #include <string>
 
@@ -10,15 +8,18 @@ namespace chess {
     struct Square {
         uint8_t square;
 
-        Square() : Square(0) { }
-        Square(const Square& square) : Square(square.square) { }
-        Square(uint8_t square) : square(square) { }
-        Square(int square) : Square(static_cast<uint8_t>(square)) { }
-        Square(uint8_t x, uint8_t y) : Square(0x80 | (y << 3) | x) { }
-        Square(const std::string& str) : Square(str[0] - 'a', str[1] - '1') { }
-        Square(const char* str) : Square(std::string(str)) { }
+        constexpr Square() : square(0) { }
+        constexpr Square(uint8_t square) : square(0x80 | square) { }
+        constexpr Square(int square) : square(0x80 | square) { }
+        constexpr Square(uint8_t x, uint8_t y) : Square(0x80 | (y << 3) | x) { }
+        constexpr Square(const char* str) : square(0x80 | ((str[1] - '1') << 3) | (str[0] - 'a')) {}
 
-        operator uint8_t() const;
+        Square(const Square& square) : Square(square.square) { }
+
+        constexpr operator uint8_t() const {
+            return square ^ 0x80;
+        }
+
         operator std::string() const;
 
         Square& operator =(const Square& square) = default;
@@ -32,6 +33,13 @@ namespace chess {
     };
 
     Square shift(const Square& square, int8_t dx, int8_t dy);
+
+    constexpr Square NULL_SQUARE = Square();
+
+    constexpr Square W_K_ROOK = "a1";
+    constexpr Square W_Q_ROOK = "h1";
+    constexpr Square B_K_ROOK = "a8";
+    constexpr Square B_Q_ROOK = "h8";
 }
 
 #endif

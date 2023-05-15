@@ -15,12 +15,12 @@ void chess::set_castling_rights(PositionData &data, CastlingType type, bool valu
     else data.dataBits &= ~(1 << type);
 }
 
-void chess::bitmask_castling_rights(PositionData &data, uint8_t mask, bool value) {
+void chess::bitmask_castling_rights(PositionData &data, DataBits mask, bool value) {
     if (value) data.dataBits |= mask;
     else data.dataBits &= ~mask;
 }
 
-void PositionData::AddMove(Move move) {
+void PositionData::AddMove(const Move& move) {
     pseudoLegalMoves.push_back(move);
 }
 

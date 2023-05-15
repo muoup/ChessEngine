@@ -12,11 +12,11 @@ namespace chess {
         explicit Board(std::string fen);
         Board() : Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {}
 
-        void PlayMove(Move move);
+        void PlayMove(const Move& move);
         Move UndoMove();
 
-        void SetSquare(Square square, Piece piece);
-        void SetSquare(uint8_t x, uint8_t y, Piece piece);
+        void SetSquare(Square square, const Piece& piece);
+        void SetSquare(uint8_t x, uint8_t y, const Piece& piece);
         Piece GetSquare(Square square);
 
         void Print();

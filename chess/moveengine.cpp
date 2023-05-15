@@ -15,7 +15,7 @@
 
 using namespace chess;
 
-void pawn_gen(const Piece squares[], PositionData& position, Square square) {
+void pawn_gen(const Piece squares[], PositionData& position, const Square& square) {
     bool wturn = turn(position);
     int8_t dir = wturn ? 1 : -1;
     Square to;
@@ -41,7 +41,7 @@ void pawn_gen(const Piece squares[], PositionData& position, Square square) {
     // TODO: En passant
 }
 
-void knight_gen(const Piece squares[], PositionData& position, Square square) {
+void knight_gen(const Piece squares[], PositionData& position, const Square& square) {
     bool wturn = turn(position);
     Square to;
 
@@ -55,7 +55,7 @@ void knight_gen(const Piece squares[], PositionData& position, Square square) {
     offset_move(-1, 2);
 }
 
-void bishop_gen(const Piece squares[], PositionData& position, Square square) {
+void bishop_gen(const Piece squares[], PositionData& position, const Square& square) {
     bool wturn = turn(position);
     Square to;
 
@@ -65,7 +65,7 @@ void bishop_gen(const Piece squares[], PositionData& position, Square square) {
     dir_move(-1, 1);
 }
 
-void rook_gen(const Piece squares[], PositionData& position, Square square) {
+void rook_gen(const Piece squares[], PositionData& position, const Square& square) {
     bool wturn = turn(position);
     Square to;
 
@@ -75,7 +75,7 @@ void rook_gen(const Piece squares[], PositionData& position, Square square) {
     dir_move(0, -1);
 }
 
-void king_gen(const Piece squares[], PositionData& position, Square square) {
+void king_gen(const Piece squares[], PositionData& position, const Square& square) {
     bool wturn = turn(position);
     Square to;
 

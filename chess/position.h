@@ -7,6 +7,9 @@
 namespace chess {
     typedef uint8_t DataBits;
 
+    const DataBits WHITE_CASTLE_MASK = 0b11;
+    const DataBits BLACK_CASTLE_MASK = 0b1100;
+
     enum CastlingType {
         WHITE_QUEEN_SIDE,
         WHITE_KING_SIDE,
@@ -21,12 +24,12 @@ namespace chess {
         DataBits dataBits;
         Square enPassant;
 
-        void AddMove(Move move);
+        void AddMove(const Move& move);
     };
 
     bool has_castling_rights(const PositionData& data, CastlingType type);
     void set_castling_rights(PositionData& data, CastlingType type, bool value);
-    void bitmask_castling_rights(PositionData& data, uint8_t mask, bool value);
+    void bitmask_castling_rights(PositionData& data, DataBits mask, bool value);
 
     DataBits create_bits(bool turn, const bool castlingRights[4]);
 

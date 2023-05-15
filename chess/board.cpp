@@ -24,10 +24,33 @@ Board::Board(std::string fen) : data(), squares() {
         }
     }
 
+    // This can be optimized a bit with a std::bitset and/or an inline use of the logic of create_bits,
+    // however since this is only called once per game, it's not worth the effort
     bool turn = *(++fen_ptr) == 'w';
+    bool castlingRights[4] = { false, false, false, false };
 
-    // TODO: Castling Rights
-    bool castlingRights[4] = { true, true, true, true };
+    fen_ptr++;
+
+    while (*(++fen_ptr) != ' ') {
+        switch (*fen_ptr) {
+            case 'K':
+                castlingRights[0] = true;
+                break;
+            case 'Q':
+                castlingRights[1] = true;
+                break;
+            case 'k':
+                castlingRights[2] = true;
+                break;
+            case 'q':
+                castlingRights[3] = true;
+                break;
+            default:
+                std::cout << "Invalid castling rights: " << *fen_ptr << std::endl;
+                // TODO: Throw exception
+                break;
+        }
+    }
 
     data.push({
         .dataBits = create_bits(turn, castlingRights)
@@ -38,15 +61,16 @@ Board::Board(std::string fen) : data(), squares() {
 }
 
 void Board::Print() {
+    std::cout << " BOARD:\n";
     for (int y = 7; y >= 0; y--) {
         for (int x = 0; x < 8; x++) {
             std::cout << (char) squares[Square(x, y)];
         }
-        std::cout << std::endl;
+        std::cout << "\n";
     }
 }
 
-void Board::PlayMove(Move move) {
+void Board::PlayMove(const Move& move) {
     PositionData pos = data.top();
 
     move.play(move, squares, pos);
@@ -66,11 +90,11 @@ Move Board::UndoMove() {
     return move;
 }
 
-void Board::SetSquare(Square square, Piece piece) {
+void Board::SetSquare(Square square, const Piece& piece) {
     squares[square] = piece;
 }
 
-void Board::SetSquare(uint8_t x, uint8_t y, Piece piece) {
+void Board::SetSquare(uint8_t x, uint8_t y, const Piece& piece) {
     squares[Square(x, y)] = piece;
 }
 
@@ -87,7 +111,9 @@ void Board::PosEval() {
 void Board::PMPrint() {
     std::cout << "Pseudo Legal Moves:" << std::endl;
 
-    for (const Move& move : data.top().pseudoLegalMoves) {
+    auto& moves = data.top().pseudoLegalMoves;
+
+    for (const Move& move : moves) {
         std::cout << to_string(move) << std::endl;
     }
 }

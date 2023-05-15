@@ -22,10 +22,10 @@ namespace chess {
 
     std::string to_string(const Move& move);
 
-    Move std_move(const Piece squares[], Square from, Square to, PieceType promotion = NONE);
-    Move capture_move(Square from, Square to, Piece capture, PieceType promotion = NONE);
-    Move castle_move(Square kingSquare, Square rookSquare);
-    Move enpassant_move(Square from, Square to, Square enpassantSquare);
+    Move std_move(const Piece squares[], const Square& from, const Square& to, PieceType promotion = NONE);
+    Move capture_move(const Square& from, const Square& to, const Piece& capture, PieceType promotion = NONE);
+    Move castle_move(const Square& kingSquare, const Square& rookSquare);
+    Move enpassant_move(const Square& from, const Square& to, const Square& enpassantSquare);
 }
 
 #endif

@@ -1,5 +1,5 @@
 #include <cstdint>
-#include <map>
+#include <unordered_map>
 
 namespace chess {
     enum PieceType {
@@ -13,13 +13,17 @@ namespace chess {
     struct Piece {
         uint8_t piece;
 
-        Piece() = default;
-        Piece(const Piece& piece) : piece(piece.piece) {}
+        Piece() : piece(0) {};
         Piece(uint8_t piece) : piece(piece) {}
         Piece(char c);
+        Piece(const Piece& piece) : piece(piece.piece) {}
         Piece(PieceType type, bool white) {
-            if (type != NONE)
-                piece = (type << 1) | white;
+            if (type == NONE) {
+                piece = 0;
+                return;
+            }
+
+            piece = (type << 1) | white;
         }
 
         operator uint8_t() const { return piece; }
@@ -30,7 +34,7 @@ namespace chess {
 
     const Piece EMPTY = Piece();
 
-    const std::map<int, PieceType> CHAR_TO_TYPE = {
+    const std::unordered_map<int, PieceType> CHAR_TO_TYPE = {
             {'p', PAWN},
             {'n', KNIGHT},
             {'b', BISHOP},
@@ -38,7 +42,7 @@ namespace chess {
             {'q', QUEEN},
             {'k', KING}
     };
-    const std::map<PieceType, char> TYPE_TO_CHAR = {
+    const std::unordered_map<PieceType, char> TYPE_TO_CHAR = {
             {PAWN, 'p'},
             {KNIGHT, 'n'},
             {BISHOP, 'b'},
