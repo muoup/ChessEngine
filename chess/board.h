@@ -4,31 +4,31 @@
 #include <stack>
 #include <memory>
 #include <vector>
-#include "position.h"
+#include "data/position.h"
 
 namespace chess {
-    class Board {
+    class board {
     public:
-        explicit Board(std::string fen);
-        Board() : Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {}
+        explicit board(std::string fen);
+        board() : board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {}
 
-        void play_move(const Move& move);
-        Move undo_move();
+        void play_move(const board_move& move);
+        board_move undo_move();
 
-        void set_square(Square square, const Piece& piece);
-        void set_square(uint8_t x, uint8_t y, const Piece& piece);
+        void set_square(board_square square, const board_piece& piece);
+        void set_square(uint8_t x, uint8_t y, const board_piece& piece);
 
         void print();
 
-        const Piece *get_squares();
-        Piece piece_at(chess::Square square);
+        const board_piece *get_squares();
+        board_piece piece_at(chess::board_square square);
 
-        operator Piece*();
+        operator board_piece*();
 
         void pm_print();
     private:
-        std::stack<PositionData> data;
-        Piece squares[64];
+        std::stack<position_data> data;
+        board_piece squares[64];
 
         void pos_eval();
     };

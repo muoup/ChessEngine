@@ -1,4 +1,4 @@
-#include "moveengine.h"
+#include "pseudomovegen.h"
 #include <vector>
 
 #define moveadd() position.add_move(std_move(squares, square, to))
@@ -15,10 +15,10 @@
 
 using namespace chess;
 
-void pawn_gen(const Piece squares[], PositionData& position, const Square& square) {
+void pawn_gen(const board_piece squares[], position_data& position, const board_square& square) {
     bool wturn = turn(position);
     int8_t dir = wturn ? 1 : -1;
-    Square to;
+    board_square to;
 
     if (!squares[to = shift(square, 0, dir)]) {
         if (square.rank() == (wturn ? 6 : 1)) {
@@ -29,7 +29,7 @@ void pawn_gen(const Piece squares[], PositionData& position, const Square& squar
         } else {
             moveadd();
             if (!squares[to = shift(to, 0, dir)])
-                position.add_move(std_move(squares, square, to, NONE, shift(square, 0, dir)));
+                position.add_move(ptwo_move(square, to));
         }
     }
 
@@ -43,9 +43,9 @@ void pawn_gen(const Piece squares[], PositionData& position, const Square& squar
         position.add_move(en_passant_move(square, to, shift(to, 0, dir)));
 }
 
-void knight_gen(const Piece squares[], PositionData& position, const Square& square) {
+void knight_gen(const board_piece squares[], position_data& position, const board_square& square) {
     bool wturn = turn(position);
-    Square to;
+    board_square to;
 
     offset_move(1, 2);
     offset_move(2, 1);
@@ -57,9 +57,9 @@ void knight_gen(const Piece squares[], PositionData& position, const Square& squ
     offset_move(-1, 2);
 }
 
-void bishop_gen(const Piece squares[], PositionData& position, const Square& square) {
+void bishop_gen(const board_piece squares[], position_data& position, const board_square& square) {
     bool wturn = turn(position);
-    Square to;
+    board_square to;
 
     dir_move(1, 1);
     dir_move(1, -1);
@@ -67,9 +67,9 @@ void bishop_gen(const Piece squares[], PositionData& position, const Square& squ
     dir_move(-1, 1);
 }
 
-void rook_gen(const Piece squares[], PositionData& position, const Square& square) {
+void rook_gen(const board_piece squares[], position_data& position, const board_square& square) {
     bool wturn = turn(position);
-    Square to;
+    board_square to;
 
     dir_move(1, 0);
     dir_move(0, 1);
@@ -77,15 +77,15 @@ void rook_gen(const Piece squares[], PositionData& position, const Square& squar
     dir_move(0, -1);
 }
 
-void king_gen(const Piece squares[], PositionData& position, const Square& square) {
+void king_gen(const board_piece squares[], position_data& position, const board_square& square) {
     bool wturn = turn(position);
-    Square to;
+    board_square to;
 
     for (int8_t dx = -1; dx <= 1; dx++)
         for (int8_t dy = -1; dy <= 1; dy++)
             offset_move(dx, dy);
 
-    if (has_castling_rights(position, (CastlingType) (2 * wturn))) {
+    if (has_castling_rights(position, (castling_type) (2 * wturn))) {
         // King-side castling
         if (!squares[shift(square, 1, 0)]
          && !squares[to = shift(square, 2, 0)]) {
@@ -93,7 +93,7 @@ void king_gen(const Piece squares[], PositionData& position, const Square& squar
             position.add_move(castle_move(square, to));
         }
     }
-    if (has_castling_rights(position, (CastlingType) (2 * wturn + 1))) {
+    if (has_castling_rights(position, (castling_type) (2 * wturn + 1))) {
         // Queen-side castling
         if (!squares[shift(square, -1, 0)]
          && !squares[shift(square, -2, 0)]
@@ -104,7 +104,7 @@ void king_gen(const Piece squares[], PositionData& position, const Square& squar
     }
 }
 
-void chess::pseudo_movegen(const Piece squares[], PositionData& position) {
+void chess::movegen::pseudo_movegen(const board_piece squares[], position_data& position) {
     for (uint8_t i = 0; i < 64; i++) {
         if (!squares[i]
          || piece_clr(squares[i]) != turn(position)) continue;
@@ -113,7 +113,6 @@ void chess::pseudo_movegen(const Piece squares[], PositionData& position) {
             case PAWN:
                 pawn_gen(squares, position, i);
                 break;
-#if 0
             case KNIGHT:
                 knight_gen(squares, position, i);
                 break;
@@ -132,7 +131,6 @@ void chess::pseudo_movegen(const Piece squares[], PositionData& position) {
                 break;
             default:
                 break;
-#endif
         }
     }
 }

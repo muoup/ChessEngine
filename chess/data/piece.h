@@ -10,13 +10,13 @@ namespace chess {
         QUEEN, KING
     };
 
-    struct Piece {
+    struct board_piece {
         uint8_t piece;
 
-        constexpr Piece() : piece(0) {};
-        constexpr Piece(uint8_t piece) : piece(piece) {}
-        constexpr Piece(const Piece& piece) : piece(piece.piece) {}
-        constexpr Piece(PieceType type, bool white) {
+        constexpr board_piece() : piece(0) {};
+        constexpr board_piece(uint8_t piece) : piece(piece) {}
+        constexpr board_piece(const board_piece& piece) : piece(piece.piece) {}
+        constexpr board_piece(PieceType type, bool white) {
             if (type == NONE) {
                 piece = 0;
                 return;
@@ -25,7 +25,7 @@ namespace chess {
             piece = (type << 1) | white;
         }
 
-        Piece(char c);
+        board_piece(char c);
 
         constexpr operator uint8_t() const { return piece; }
         constexpr operator int() const { return piece; }
@@ -34,7 +34,7 @@ namespace chess {
         operator char() const;
     };
 
-    const Piece EMPTY = Piece();
+    const board_piece EMPTY = board_piece();
 
     const std::unordered_map<int, PieceType> CHAR_TO_TYPE = {
             {'p', PAWN},
@@ -55,9 +55,9 @@ namespace chess {
 
     PieceType char_type(char c);
 
-    bool piece_clr(const Piece& piece);
-    PieceType piece_type(const Piece& piece);
+    bool piece_clr(const board_piece& piece);
+    PieceType piece_type(const board_piece& piece);
 
-    bool is_enemy(const Piece& piece, bool white);
-    bool is_ally(const Piece& piece, bool white);
+    bool is_enemy(const board_piece& piece, bool white);
+    bool is_ally(const board_piece& piece, bool white);
 }
