@@ -11,20 +11,20 @@ namespace chess {
     const DataBits BLACK_CASTLE_MASK = 0b1100;
 
     enum CastlingType {
-        WHITE_QUEEN_SIDE,
         WHITE_KING_SIDE,
+        WHITE_QUEEN_SIDE,
+        BLACK_KING_SIDE,
         BLACK_QUEEN_SIDE,
-        BLACK_KING_SIDE
     };
 
     struct PositionData {
-        Move prevMove;
-        std::vector<Move> pseudoLegalMoves;
+        Move prev_move;
+        std::vector<Move> pseudo_legal_moves;
 
         DataBits dataBits;
-        Square enPassant;
+        Square en_passant;
 
-        void AddMove(const Move& move);
+        void add_move(const Move& move);
     };
 
     bool has_castling_rights(const PositionData& data, CastlingType type);

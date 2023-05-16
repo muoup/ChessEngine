@@ -13,11 +13,10 @@ namespace chess {
     struct Piece {
         uint8_t piece;
 
-        Piece() : piece(0) {};
-        Piece(uint8_t piece) : piece(piece) {}
-        Piece(char c);
-        Piece(const Piece& piece) : piece(piece.piece) {}
-        Piece(PieceType type, bool white) {
+        constexpr Piece() : piece(0) {};
+        constexpr Piece(uint8_t piece) : piece(piece) {}
+        constexpr Piece(const Piece& piece) : piece(piece.piece) {}
+        constexpr Piece(PieceType type, bool white) {
             if (type == NONE) {
                 piece = 0;
                 return;
@@ -26,10 +25,13 @@ namespace chess {
             piece = (type << 1) | white;
         }
 
-        operator uint8_t() const { return piece; }
-        operator int() const { return piece; }
+        Piece(char c);
+
+        constexpr operator uint8_t() const { return piece; }
+        constexpr operator int() const { return piece; }
+
+        operator bool() const;
         operator char() const;
-        operator bool() const { return piece != 0; }
     };
 
     const Piece EMPTY = Piece();
@@ -56,7 +58,6 @@ namespace chess {
     bool piece_clr(const Piece& piece);
     PieceType piece_type(const Piece& piece);
 
-    bool is_empty(Piece piece);
     bool is_enemy(const Piece& piece, bool white);
     bool is_ally(const Piece& piece, bool white);
 }

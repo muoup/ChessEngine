@@ -36,3 +36,7 @@ bool chess::is_enemy(const Piece& piece, bool white) {
 bool chess::is_ally(const Piece& piece, bool white) {
     return piece && piece_clr(piece) == white;
 }
+
+Piece::operator bool() const {
+    return piece_type(piece) != NONE;
+}

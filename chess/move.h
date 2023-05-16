@@ -16,16 +16,16 @@ namespace chess {
         std::string (*to_string)(const Move& move);
 
         // From and to also act as the king and rook squares for castling moves.
-        Square from, to, enpassantSquare;
+        Square from, to, en_passant;
         Piece captured_piece, promotion;
     };
 
     std::string to_string(const Move& move);
 
-    Move std_move(const Piece squares[], const Square& from, const Square& to, PieceType promotion = NONE);
+    Move std_move(const Piece squares[], const Square& from, const Square& to, PieceType promotion = NONE, const Square& en_passant_square = NULL_SQUARE);
     Move capture_move(const Square& from, const Square& to, const Piece& capture, PieceType promotion = NONE);
-    Move castle_move(const Square& kingSquare, const Square& rookSquare);
-    Move enpassant_move(const Square& from, const Square& to, const Square& enpassantSquare);
+    Move castle_move(const Square& king_square, const Square& rook_square);
+    Move en_passant_move(const Square& from, const Square& to, const Square& en_passant_square);
 }
 
 #endif

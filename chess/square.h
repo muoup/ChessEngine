@@ -9,8 +9,8 @@ namespace chess {
         uint8_t square;
 
         constexpr Square() : square(0) { }
-        constexpr Square(uint8_t square) : square(0x80 | square) { }
-        constexpr Square(int square) : square(0x80 | square) { }
+        constexpr Square(uint8_t square) : square(square) { }
+        constexpr Square(int square) : square(square) { }
         constexpr Square(uint8_t x, uint8_t y) : Square(0x80 | (y << 3) | x) { }
         constexpr Square(const char* str) : square(0x80 | ((str[1] - '1') << 3) | (str[0] - 'a')) {}
 
@@ -24,6 +24,13 @@ namespace chess {
 
         Square& operator =(const Square& square) = default;
         Square operator +(const Square& other) const;
+
+        bool operator ==(const Square& other) const {
+            return square == other.square;
+        }
+        bool operator ==(uint8_t other) const {
+            return square == other;
+        }
 
         bool valid() const;
         bool invalid() const;

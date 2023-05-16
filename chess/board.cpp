@@ -19,7 +19,7 @@ Board::Board(std::string fen) : data(), squares() {
         } else if (isdigit(c)) {
             x += c - '0';
         } else {
-            SetSquare(x, y,c);
+            set_square(x, y, c);
             x++;
         }
     }
@@ -34,16 +34,16 @@ Board::Board(std::string fen) : data(), squares() {
     while (*(++fen_ptr) != ' ') {
         switch (*fen_ptr) {
             case 'K':
-                castlingRights[0] = true;
+                castlingRights[WHITE_KING_SIDE] = true;
                 break;
             case 'Q':
-                castlingRights[1] = true;
+                castlingRights[WHITE_QUEEN_SIDE] = true;
                 break;
             case 'k':
-                castlingRights[2] = true;
+                castlingRights[BLACK_KING_SIDE] = true;
                 break;
             case 'q':
-                castlingRights[3] = true;
+                castlingRights[BLACK_QUEEN_SIDE] = true;
                 break;
             default:
                 std::cout << "Invalid castling rights: " << *fen_ptr << std::endl;
@@ -56,11 +56,10 @@ Board::Board(std::string fen) : data(), squares() {
         .dataBits = create_bits(turn, castlingRights)
     });
 
-    Print();
-    PosEval();
+    pos_eval();
 }
 
-void Board::Print() {
+void Board::print() {
     std::cout << " BOARD:\n";
     for (int y = 7; y >= 0; y--) {
         for (int x = 0; x < 8; x++) {
@@ -70,19 +69,24 @@ void Board::Print() {
     }
 }
 
-void Board::PlayMove(const Move& move) {
+void Board::play_move(const Move& move) {
     PositionData pos = data.top();
+
+    pos.en_passant = 0;
+    pos.prev_move = move;
+    pos.pseudo_legal_moves.clear();
 
     move.play(move, squares, pos);
-    pos.prevMove = move;
 
     data.push(pos);
+
+    pos_eval();
 }
 
-Move Board::UndoMove() {
+Move Board::undo_move() {
     PositionData pos = data.top();
 
-    Move move = pos.prevMove;
+    Move move = pos.prev_move;
     move.undo(squares, pos);
 
     data.pop();
@@ -90,38 +94,36 @@ Move Board::UndoMove() {
     return move;
 }
 
-void Board::SetSquare(Square square, const Piece& piece) {
+void Board::set_square(Square square, const Piece& piece) {
     squares[square] = piece;
 }
 
-void Board::SetSquare(uint8_t x, uint8_t y, const Piece& piece) {
+void Board::set_square(uint8_t x, uint8_t y, const Piece& piece) {
     squares[Square(x, y)] = piece;
 }
 
-Piece Board::GetSquare(Square square) {
-    return squares[square];
-}
-
-void Board::PosEval() {
+void Board::pos_eval() {
     pseudo_movegen(squares, data.top());
-
-    PMPrint();
 }
 
-void Board::PMPrint() {
+void Board::pm_print() {
     std::cout << "Pseudo Legal Moves:" << std::endl;
 
-    auto& moves = data.top().pseudoLegalMoves;
+    auto& moves = data.top().pseudo_legal_moves;
 
     for (const Move& move : moves) {
         std::cout << to_string(move) << std::endl;
     }
 }
 
-const Piece *Board::GetSquares() {
+const Piece *Board::get_squares() {
     return squares;
 }
 
-Piece Board::PieceAt(chess::Square square) {
+Piece Board::piece_at(chess::Square square) {
     return squares[square];
+}
+
+Board::operator Piece*() {
+    return squares;
 }

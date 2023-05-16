@@ -1,8 +1,8 @@
 #include "moveengine.h"
 #include <vector>
 
-#define moveadd() position.AddMove(std_move(squares, square, to))
-#define moveaddp(promotion) position.AddMove(std_move(squares, square, to, promotion))
+#define moveadd() position.add_move(std_move(squares, square, to))
+#define moveaddp(promotion) position.add_move(std_move(squares, square, to, promotion))
 
 #define offset_move(dx, dy) \
     if ((to = shift(square, dx, dy)).valid() && !is_ally(squares[to], wturn)) \
@@ -29,16 +29,18 @@ void pawn_gen(const Piece squares[], PositionData& position, const Square& squar
         } else {
             moveadd();
             if (!squares[to = shift(to, 0, dir)])
-                moveadd();
+                position.add_move(std_move(squares, square, to, NONE, shift(square, 0, dir)));
         }
     }
 
     if (square.rank() > 0 && is_enemy(squares[to = shift(square, 1, dir)], wturn))
         moveadd();
+    if (position.en_passant && (position.en_passant == to))
+        position.add_move(en_passant_move(square, to, shift(to, 0, dir)));
     if (square.rank() < 7 && is_enemy(squares[to = shift(square, -1, dir)], wturn))
         moveadd();
-
-    // TODO: En passant
+    if (position.en_passant && (position.en_passant == to))
+        position.add_move(en_passant_move(square, to, shift(to, 0, dir)));
 }
 
 void knight_gen(const Piece squares[], PositionData& position, const Square& square) {
@@ -82,6 +84,24 @@ void king_gen(const Piece squares[], PositionData& position, const Square& squar
     for (int8_t dx = -1; dx <= 1; dx++)
         for (int8_t dy = -1; dy <= 1; dy++)
             offset_move(dx, dy);
+
+    if (has_castling_rights(position, (CastlingType) (2 * wturn))) {
+        // King-side castling
+        if (!squares[shift(square, 1, 0)]
+         && !squares[to = shift(square, 2, 0)]) {
+
+            position.add_move(castle_move(square, to));
+        }
+    }
+    if (has_castling_rights(position, (CastlingType) (2 * wturn + 1))) {
+        // Queen-side castling
+        if (!squares[shift(square, -1, 0)]
+         && !squares[shift(square, -2, 0)]
+         && !squares[to = shift(square, -3, 0)]) {
+
+            position.add_move(castle_move(square, to));
+        }
+    }
 }
 
 void chess::pseudo_movegen(const Piece squares[], PositionData& position) {
@@ -93,6 +113,7 @@ void chess::pseudo_movegen(const Piece squares[], PositionData& position) {
             case PAWN:
                 pawn_gen(squares, position, i);
                 break;
+#if 0
             case KNIGHT:
                 knight_gen(squares, position, i);
                 break;
@@ -111,6 +132,7 @@ void chess::pseudo_movegen(const Piece squares[], PositionData& position) {
                 break;
             default:
                 break;
+#endif
         }
     }
 }

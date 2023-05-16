@@ -3,6 +3,12 @@
 #include "square.h"
 #include "position.h"
 
+#define castle_swap() \
+    const int8_t k_column = (move.from > move.to) ? 2 : 6; \
+    const int8_t r_column = (move.from > move.to) ? 3 : 5; \
+    std::swap(squares[move.from], squares[Square(k_column, move.from.rank())]); \
+    std::swap(squares[move.to], squares[Square(r_column, move.to.rank())])
+
 using namespace chess;
 
 void handle_rook_delta(const Square& rook_square, PositionData& data) {
@@ -23,19 +29,21 @@ void handle_rook_delta(const Square& rook_square, PositionData& data) {
 }
 
 void std_undo(Piece squares[], const PositionData& data) {
-    const Move& move = data.prevMove;
+    const Move& move = data.prev_move;
 
     squares[move.from] = (move.promotion) ?
-            squares[move.to] :
-            Piece(PAWN, !piece_clr(move.promotion));
+            Piece(PAWN, !piece_clr(move.promotion)) :
+            squares[move.to];
     squares[move.to] = EMPTY;
 }
 
 void std_play(const Move& move, Piece squares[], PositionData& data) {
     squares[move.to] = (move.promotion) ?
-            squares[move.from] :
-            move.promotion;
+            move.promotion :
+            squares[move.from];
     squares[move.from] = EMPTY;
+
+    data.en_passant = move.en_passant;
 
     if (piece_type(squares[move.from]) == KING)
         bitmask_castling_rights(data, turn(data) ? WHITE_CASTLE_MASK : BLACK_CASTLE_MASK, false);
@@ -52,7 +60,7 @@ std::string std_to_string(const Move& move) {
 }
 
 void capture_undo(Piece squares[], const PositionData& data) {
-    const Move& move = data.prevMove;
+    const Move& move = data.prev_move;
 
     squares[move.from] = (move.promotion) ?
             Piece(PAWN, !piece_clr(move.promotion)) :
@@ -82,50 +90,35 @@ std::string capture_to_string(const Move& move) {
     return ss.str();
 }
 
-void enpassant_undo(Piece squares[], const PositionData& data) {
-    const Move &move = data.prevMove;
+void en_passant_undo(Piece squares[], const PositionData& data) {
+    const Move &move = data.prev_move;
 
     squares[move.from] = squares[move.to];
     squares[move.to] = EMPTY;
-    squares[move.enpassantSquare] =
+    squares[move.en_passant] =
             Piece(PAWN, !piece_clr(squares[move.from]));
 }
 
-void enpassant_play(const Move& move, Piece squares[], PositionData& data) {
+void en_passant_play(const Move& move, Piece squares[], PositionData& data) {
     squares[move.to] = squares[move.from];
     squares[move.from] = EMPTY;
-    squares[move.enpassantSquare] = EMPTY;
+    squares[move.en_passant] = EMPTY;
 }
 
-std::string enpassant_to_string(const Move& move) {
+std::string en_passant_to_string(const Move& move) {
     std::stringstream ss;
-    ss << (std::string) move.from << "x" << (std::string) move.to;
+    ss << (std::string) move.from << "x" << (std::string) move.to << " (e.p.)";
     return ss.str();
 }
 
 void castle_undo(Piece squares[], const PositionData& data) {
-    const Move& move = data.prevMove;
+    const Move& move = data.prev_move;
 
-    // This is duplicate code, but castle_play cannot be called as data is constant in this method.
-    int8_t k_column = (move.from > move.to) ? 2 : 6;
-    int8_t r_column = (move.from > move.to) ? 3 : 5;
-
-    std::swap(squares[move.from],
-              squares[Square(k_column, move.from.rank())]);
-
-    std::swap(squares[move.to],
-              squares[Square(r_column, move.to.rank())]);
+    castle_swap();
 }
 
 void castle_play(const Move& move, Piece squares[], PositionData& data) {
-    int8_t k_column = (move.from > move.to) ? 2 : 6;
-    int8_t r_column = (move.from > move.to) ? 3 : 5;
-
-    std::swap(squares[move.from],
-              squares[Square(k_column, move.from.rank())]);
-
-    std::swap(squares[move.to],
-              squares[Square(r_column, move.to.rank())]);
+    castle_swap();
 
     bitmask_castling_rights(data, turn(data) ? WHITE_CASTLE_MASK : BLACK_CASTLE_MASK, false);
 }
@@ -134,7 +127,7 @@ std::string castle_to_string(const Move& move) {
     return (move.from > move.to) ? "O-O-O" : "O-O";
 }
 
-Move chess::std_move(const Piece squares[], const Square& from, const Square& to, PieceType promotion) {
+Move chess::std_move(const Piece squares[], const Square& from, const Square& to, PieceType promotion, const Square& en_passant_square) {
     if (piece_type(squares[to]) != NONE)
         return capture_move(from, to, squares[to], promotion);
 
@@ -144,6 +137,7 @@ Move chess::std_move(const Piece squares[], const Square& from, const Square& to
         .to_string = std_to_string,
         .from = from,
         .to = to,
+        .en_passant = en_passant_square,
         .promotion = Piece(promotion, piece_clr(squares[from]))
     };
 }
@@ -155,30 +149,30 @@ Move chess::capture_move(const Square& from, const Square& to, const Piece& capt
         .to_string = capture_to_string,
         .from = from,
         .to = to,
-        .enpassantSquare = NULL_SQUARE,
+        .en_passant = NULL_SQUARE,
         .captured_piece = capture,
         .promotion = Piece(promotion, !piece_clr(capture))
     };
 }
 
-Move chess::enpassant_move(const Square& from, const Square& to, const Square& enpassantSquare) {
+Move chess::en_passant_move(const Square& from, const Square& to, const Square& en_passant_square) {
     return {
-        .play = enpassant_play,
-        .undo = enpassant_undo,
-        .to_string = enpassant_to_string,
+        .play = en_passant_play,
+        .undo = en_passant_undo,
+        .to_string = en_passant_to_string,
         .from = from,
         .to = to,
-        .enpassantSquare = enpassantSquare,
+        .en_passant = en_passant_square,
     };
 }
 
-Move chess::castle_move(const Square& kingSquare, const Square& rookSquare) {
+Move chess::castle_move(const Square& king_square, const Square& rook_square) {
     return {
         .play = castle_play,
         .undo = castle_undo,
         .to_string = castle_to_string,
-        .from = kingSquare,
-        .to = rookSquare,
+        .from = king_square,
+        .to = rook_square,
     };
 }
 

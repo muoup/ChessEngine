@@ -20,8 +20,8 @@ void chess::bitmask_castling_rights(PositionData &data, DataBits mask, bool valu
     else data.dataBits &= ~mask;
 }
 
-void PositionData::AddMove(const Move& move) {
-    pseudoLegalMoves.push_back(move);
+void PositionData::add_move(const Move& move) {
+    pseudo_legal_moves.push_back(move);
 }
 
 DataBits chess::create_bits(bool turn, const bool castlingRights[4]) {
